@@ -27,7 +27,7 @@ class Movies(APIView):
                 imdb_score(float): pass movie score rate e.g 8.2
                }
         Returns:
-            [dict]: [return passed dict if successfully saved]
+            [json]: [return newly added movie json if successfully saved]
         """
         try:
             request = request.data
@@ -49,6 +49,14 @@ class Movies(APIView):
         return Response(response, status=response.get("status"))
 
     def patch(self, request):
+        """[Update the movie with the MoviesModel fields provided in request]
+
+        Args:
+            request ([dict]): update only those fields which are passed in request, id key is mandatory to update movie record
+
+        Returns:
+            [json]: [return updated movie json if successfully saved]
+        """
         try:
             request = request.data
             movie = MoviesModel.objects.get(id=request.get("id"))
@@ -75,6 +83,14 @@ class Movies(APIView):
         return Response(response, status=response.get("status"))
 
     def delete(self, request):
+        """[Delete the movie with the id provided in request]
+
+        Args:
+            request ([queryparam]): []
+
+        Returns:
+            [json]: [JSON response with either 'SUCCESS' or 'ERROR']
+        """
         try:
             request = request.GET
             MoviesModel.objects.get(id=request.get("id")).delete()
