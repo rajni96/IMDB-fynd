@@ -25,7 +25,7 @@ SECRET_KEY = "dwzt$4p^fl47j=ljk$0_!xo3w*i+ks#2*9*gm*!j3&*rit3d52"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ["127.0.0.1","imdb-fynd-task.herokuapp.com"]
 
 
 # Application definition
