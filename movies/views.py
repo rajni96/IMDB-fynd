@@ -15,6 +15,20 @@ class Movies(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
+        """[Add the movie with the name, director, genre etc provided in request.Same movie name and director can't be added if already exist]
+
+        Args:
+            request ([dict]):
+               {
+                name(str): Movies name,
+                director(int): pass director id which is already saved in db e.g 6,
+                genre(list[int]): pass genre list which are already saved in db e.g [21,22],
+                popularity(float): pass popularity rate e.g 82.0
+                imdb_score(float): pass movie score rate e.g 8.2
+               }
+        Returns:
+            [dict]: [return passed dict if successfully saved]
+        """
         try:
             request = request.data
             serializer = MovieSerializer(data=request)
@@ -98,6 +112,7 @@ def get_movies(request):
             movie = {
                 "id": movie.id,
                 "name": movie.name,
+                "imdb_score":movie.imdb_score,
                 "popularity": movie.popularity,
                 "director_id": movie.director.id,
                 "director_name": movie.director.name,
