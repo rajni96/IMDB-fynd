@@ -15,6 +15,6 @@ urlpatterns = [
     path("delete", Movies.as_view(), name="movies_delete"),
     path("genre/list", get_genre_list, name="genre_list"),
     path("director/list", get_director_list, name="director_list"),
-    path("upload", uploadMovieJson, name="movies_delete"),
+    # path("upload", uploadMovieJson, name="movies_delete"),
 ]
 

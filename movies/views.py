@@ -15,10 +15,11 @@ class Movies(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
-        """[Add the movie with the name, director, genre etc provided in request.Same movie name and director can't be added if already exist]
+        """Add the movie with the name, director, genre etc provided in request.
+           Same movie name and director can't be added if already exist
 
         Args:
-            request ([dict]):
+            request (dict):
                {
                 name(str): Movies name,
                 director(int): pass director id which is already saved in db e.g 6,
@@ -27,7 +28,7 @@ class Movies(APIView):
                 imdb_score(float): pass movie score rate e.g 8.2
                }
         Returns:
-            [json]: [return newly added movie json if successfully saved]
+            json: return newly added movie json if successfully saved
         """
         try:
             request = request.data
@@ -49,13 +50,14 @@ class Movies(APIView):
         return Response(response, status=response.get("status"))
 
     def patch(self, request):
-        """[Update the movie with the MoviesModel fields provided in request]
+        """Update the movie with the MoviesModel fields provided in request
 
         Args:
-            request ([dict]): update only those fields which are passed in request, id key is mandatory to update movie record
+            request (dict): update only those fields which are passed in request,
+                            id key is mandatory to update movie record
 
         Returns:
-            [json]: [return updated movie json if successfully saved]
+            json: return updated movie json if successfully saved
         """
         try:
             request = request.data
@@ -83,15 +85,13 @@ class Movies(APIView):
         return Response(response, status=response.get("status"))
 
     def delete(self, request):
-        """[Delete the movie with the id provided in request]
+        """Delete the movie with the id provided in request
 
         Args:
-            request ([queryparam]): [
-                id:"pass the movie id"
-            ]
+            request (queryparam): pass the movie id
 
         Returns:
-            [json]: [JSON response with either success or error msg]
+            json: JSON response with either success or error msg
         """
         try:
             request = request.GET
@@ -113,17 +113,17 @@ class Movies(APIView):
 
 @api_view(["GET"])
 def get_movies(request):
-    """[default return latest 10 records if limit, offset doesn't provided in request,also search the movie with the part of name provided in request.]
+    """Return default latest 10 records if limit, offset is not provided in request,
+       also search the movie with the part of name provided in request.
 
     Args:
-        request ([queryparam]): [
+        request (queryparam):
             offset: used to which records to start from retrieving data
             limit: used to limit the number of records returned in a query result
             _search: used to seach movie
-             ]
 
     Returns:
-        [json]: [return list of movies]
+        json: return list of movies
     """
     try:
         movies = []
@@ -164,13 +164,13 @@ def get_movies(request):
 
 @api_view(["GET"])
 def get_director_list(request):
-    """[return all directors from db]
+    """Return all directors from db
 
     Args:
-        request ([None]): []
+        request (None): request object
 
     Returns:
-        [json]: [list of directors]
+        json: list of directors
     """
     try:
         directors = Director.objects.all().values("id", "name")
@@ -185,13 +185,13 @@ def get_director_list(request):
 
 @api_view(["GET"])
 def get_genre_list(request):
-    """[return all genre from db]
+    """Return all genre from db
 
     Args:
-        request ([None]): []
+        request (None): request object
 
     Returns:
-        [json]: [list of genre]
+        json: list of genre
     """
     try:
         genres = Genre.objects.all().values("id", "name")
@@ -205,17 +205,19 @@ def get_genre_list(request):
     return Response(response, status=response.get("status"))
 
 
+# This API is used to insert in db and not a part of Urls.
 @api_view(["POST"])
 def uploadMovieJson(request):
-    """[first save all director list and genre in db without passing any parameter in request, and then save moves in movie table]
+    """First save all director list and genre in db without passing any parameter in request,
+       and then save moves in movie table
 
     Args:
-        request ([dict]): {
+        request (dict): {
             upload: "pass 'movie' string to save movies"
         }
 
     Returns:
-        [type]: [description]
+        None: returns None
     """
     try:
         request = request.data
@@ -239,10 +241,10 @@ def uploadMovieJson(request):
 
 
 def updateMovieIndb(movie):
-    """[save movie in db with all fields]
+    """Save movie in db with all fields
 
     Args:
-        movie ([dict]): [all movie fields]
+        movie (dict): all movie fields
     """
     try:
         director_id = Director.objects.get(name=movie.get("director"))
@@ -263,10 +265,10 @@ def updateMovieIndb(movie):
 
 
 def updateGenreInDb(genres: list):
-    """[save genre in db]
+    """Save genre in db
 
     Args:
-        genres (list): [genre list]
+        genres (list): genre list
     """
     for name in genres:
         genre_serializer = GenreSerializer(data={"name": name.strip()})
@@ -278,10 +280,10 @@ def updateGenreInDb(genres: list):
 
 
 def updateDirectorInDb(director: str):
-    """[save director in db]
+    """Save director in db
 
     Args:
-        director (str): [director name]
+        director (str): director name
     """
 
     dir_serializer = DirectorSerializer(data={"name": director.strip()})
