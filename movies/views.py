@@ -86,10 +86,12 @@ class Movies(APIView):
         """[Delete the movie with the id provided in request]
 
         Args:
-            request ([queryparam]): []
+            request ([queryparam]): [
+                id:"pass the movie id"
+            ]
 
         Returns:
-            [json]: [JSON response with either 'SUCCESS' or 'ERROR']
+            [json]: [JSON response with either success or error msg]
         """
         try:
             request = request.GET
@@ -111,34 +113,46 @@ class Movies(APIView):
 
 @api_view(["GET"])
 def get_movies(request):
+    """[default return latest 10 records if limit, offset doesn't provided in request,also search the movie with the part of name provided in request.]
+
+    Args:
+        request ([queryparam]): [
+            offset: used to which records to start from retrieving data
+            limit: used to limit the number of records returned in a query result
+            _search: used to seach movie
+             ]
+
+    Returns:
+        [json]: [return list of movies]
+    """
     try:
         movies = []
         request = request.GET
         limit = int(request.get("limit", 10))
         offset = int(request.get("offset", 0))
-        count = MoviesModel.objects.count()
         if request.get("_search"):
             movies_obj = MoviesModel.objects.filter(
                 name__contains=request.get("_search")
-            )[offset:limit]
+            ).order_by("-created_at")[offset:limit]
         else:
-            movies_obj = MoviesModel.objects.all()[offset:limit]
+            movies_obj = MoviesModel.objects.all().order_by("-created_at")[offset:limit]
         for movie in movies_obj:
             genres = movie.genre.all()
             movie = {
                 "id": movie.id,
                 "name": movie.name,
-                "imdb_score":movie.imdb_score,
+                "imdb_score": movie.imdb_score,
                 "popularity": movie.popularity,
                 "director_id": movie.director.id,
                 "director_name": movie.director.name,
                 "genre": [],
+                "created_at": movie.created_at,
             }
             movie["genre"].extend(
                 [{"id": genre.id, "name": genre.name} for genre in genres]
             )
             movies.append(movie)
-        response = {"response": movies, "total": count, "status": status.HTTP_200_OK}
+        response = {"response": movies, "status": status.HTTP_200_OK}
 
     except Exception as e:
         response = {
@@ -150,6 +164,14 @@ def get_movies(request):
 
 @api_view(["GET"])
 def get_director_list(request):
+    """[return all directors from db]
+
+    Args:
+        request ([None]): []
+
+    Returns:
+        [json]: [list of directors]
+    """
     try:
         directors = Director.objects.all().values("id", "name")
         response = {"response": directors, "status": status.HTTP_200_OK}
@@ -163,6 +185,14 @@ def get_director_list(request):
 
 @api_view(["GET"])
 def get_genre_list(request):
+    """[return all genre from db]
+
+    Args:
+        request ([None]): []
+
+    Returns:
+        [json]: [list of genre]
+    """
     try:
         genres = Genre.objects.all().values("id", "name")
         response = {"response": genres, "status": status.HTTP_200_OK}
@@ -177,16 +207,29 @@ def get_genre_list(request):
 
 @api_view(["POST"])
 def uploadMovieJson(request):
+    """[first save all director list and genre in db without passing any parameter in request, and then save moves in movie table]
+
+    Args:
+        request ([dict]): {
+            upload: "pass 'movie' string to save movies"
+        }
+
+    Returns:
+        [type]: [description]
+    """
     try:
+        request = request.data
         file_path = os.path.join(os.path.dirname(__file__), "./imdb.jsont.json")
         data = open(file_path)
         movies = json.load(data)
         for movie in movies:
-            # updateGenreInDb(movie.get("genre"))  # to add genre in genre table
-            # updateDirectorInDb(
-            #     movie.get("director")
-            # )  # to add director in director table
-            updateMovieIndb(movie)  # to add movie in movie table
+            if request.get("upload") == "movie":
+                updateMovieIndb(movie)  # to add movie in movie table
+            else:
+                updateGenreInDb(movie.get("genre"))  # to add genre in genre table
+                updateDirectorInDb(
+                    movie.get("director")
+                )  # to add director in director table
 
         return Response("movies uploaded", status=status.HTTP_200_OK)
     except Exception as e:
@@ -196,6 +239,11 @@ def uploadMovieJson(request):
 
 
 def updateMovieIndb(movie):
+    """[save movie in db with all fields]
+
+    Args:
+        movie ([dict]): [all movie fields]
+    """
     try:
         director_id = Director.objects.get(name=movie.get("director"))
         genres_list = [genre.strip() for genre in movie.get("genre")]
@@ -215,6 +263,11 @@ def updateMovieIndb(movie):
 
 
 def updateGenreInDb(genres: list):
+    """[save genre in db]
+
+    Args:
+        genres (list): [genre list]
+    """
     for name in genres:
         genre_serializer = GenreSerializer(data={"name": name.strip()})
         if genre_serializer.is_valid():
@@ -225,6 +278,12 @@ def updateGenreInDb(genres: list):
 
 
 def updateDirectorInDb(director: str):
+    """[save director in db]
+
+    Args:
+        director (str): [director name]
+    """
+
     dir_serializer = DirectorSerializer(data={"name": director.strip()})
     if dir_serializer.is_valid():
         dir_serializer.save()
