@@ -27,7 +27,7 @@ toml = "==0.10.1"
 typed-ast = "==1.4.1"
 whitenoise = "==5.1.0"
 zipp = "==3.1.0"
-Django = "==3.0.8"
+Django = "==3.0.12"
 PyJWT = "==1.7.1"
 django-cors-headers = "==3.4.0"
 
